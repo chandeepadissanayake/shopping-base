@@ -25,8 +25,10 @@ public class SalesOrderService {
 
     private final DeliveryRemoteService deliveryRemoteService;
 
+    private final CardPaymentRemoteService cardPaymentRemoteService;
+
     @Autowired
-    public SalesOrderService(SalesOrderRepository salesOrderRepository, SalesOrderDeliveryRepository salesOrderDeliveryRepository, PaymentRecordRepository paymentRecordRepository, CreditCardRepository creditCardRepository, MobilePaymentRepository mobilePaymentRepository, SalesItemRemoteService salesItemRemoteService, WebClient webClient, DeliveryRemoteService deliveryRemoteService) {
+    public SalesOrderService(SalesOrderRepository salesOrderRepository, SalesOrderDeliveryRepository salesOrderDeliveryRepository, PaymentRecordRepository paymentRecordRepository, CreditCardRepository creditCardRepository, MobilePaymentRepository mobilePaymentRepository, SalesItemRemoteService salesItemRemoteService, WebClient webClient, DeliveryRemoteService deliveryRemoteService, CardPaymentRemoteService cardPaymentRemoteService) {
         this.salesOrderRepository = salesOrderRepository;
         this.salesOrderDeliveryRepository = salesOrderDeliveryRepository;
         this.paymentRecordRepository = paymentRecordRepository;
@@ -34,6 +36,7 @@ public class SalesOrderService {
         this.mobilePaymentRepository = mobilePaymentRepository;
         this.salesItemRemoteService = salesItemRemoteService;
         this.deliveryRemoteService = deliveryRemoteService;
+        this.cardPaymentRemoteService = cardPaymentRemoteService;
     }
 
     public List<SalesOrder> getAllSalesOrders() {
@@ -134,8 +137,18 @@ public class SalesOrderService {
         Optional<SalesOrder> salesOrderRecord = this.salesOrderRepository.findById(orderId);
 
         if (salesOrderRecord.isPresent()) {
-
             if (salesOrderPaymentRecord.getPaymentMethod() == PaymentMethod.CREDIT_CARD) {
+                // Make the Payment
+                Optional<Map<String, String>> paymentResponseRecord = this.cardPaymentRemoteService.submitPayment(salesOrderPaymentRecord.getAmount(), salesOrderPaymentRecord.getCreditCard());
+                if (paymentResponseRecord.isEmpty()) {
+                    // Never going to happen since we use a dummy service.
+                    throw new IllegalStateException("Payment Failed!");
+                }
+                else {
+                    Map<String, String> paymentResponse = paymentResponseRecord.get();
+                    salesOrderPaymentRecord.setPaymentReference(paymentResponse.get("paymentId"));
+                }
+
                 this.creditCardRepository.save(salesOrderPaymentRecord.getCreditCard());
             }
             else if (salesOrderPaymentRecord.getPaymentMethod() == PaymentMethod.MOBILE) {

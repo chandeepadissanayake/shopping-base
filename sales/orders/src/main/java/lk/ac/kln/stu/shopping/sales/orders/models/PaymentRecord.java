@@ -18,6 +18,8 @@ public class PaymentRecord {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequence_sales_order_payment")
     private @Setter(AccessLevel.PROTECTED) Long id;
 
+    private String paymentReference;
+
     private float amount;
 
     @Enumerated(EnumType.ORDINAL)
