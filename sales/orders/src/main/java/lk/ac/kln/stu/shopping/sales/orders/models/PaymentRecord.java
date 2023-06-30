@@ -31,6 +31,6 @@ public class PaymentRecord {
 
     @ManyToOne
     @JoinColumn(nullable = true)
-    private MobilePayment mobilePayment;
+    private Mobile mobile;
 
 }
