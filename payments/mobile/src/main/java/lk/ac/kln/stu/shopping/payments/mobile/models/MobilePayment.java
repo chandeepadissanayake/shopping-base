@@ -12,4 +12,6 @@ public class MobilePayment {
     private float amount;
     private String mobileNumber;
 
+    private int pin;
+
 }
