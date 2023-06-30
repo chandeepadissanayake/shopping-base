@@ -21,6 +21,8 @@ public class SalesOrderService {
     private final CreditCardRepository creditCardRepository;
     private final MobilePaymentRepository mobilePaymentRepository;
 
+    private final SalesOrderCommunicationRepository salesOrderCommunicationRepository;
+
     private final SalesItemRemoteService salesItemRemoteService;
 
     private final DeliveryRemoteService deliveryRemoteService;
@@ -29,17 +31,21 @@ public class SalesOrderService {
 
     private final MobilePaymentRemoteService mobilePaymentRemoteService;
 
+    private final ServiceSMSSenderRemoteService smsSenderRemoteService;
+
     @Autowired
-    public SalesOrderService(SalesOrderRepository salesOrderRepository, SalesOrderDeliveryRepository salesOrderDeliveryRepository, PaymentRecordRepository paymentRecordRepository, CreditCardRepository creditCardRepository, MobilePaymentRepository mobilePaymentRepository, SalesItemRemoteService salesItemRemoteService, WebClient webClient, DeliveryRemoteService deliveryRemoteService, CardPaymentRemoteService cardPaymentRemoteService, MobilePaymentRemoteService mobilePaymentRemoteService) {
+    public SalesOrderService(SalesOrderRepository salesOrderRepository, SalesOrderDeliveryRepository salesOrderDeliveryRepository, PaymentRecordRepository paymentRecordRepository, CreditCardRepository creditCardRepository, MobilePaymentRepository mobilePaymentRepository, SalesOrderCommunicationRepository salesOrderCommunicationRepository, SalesItemRemoteService salesItemRemoteService, WebClient webClient, DeliveryRemoteService deliveryRemoteService, CardPaymentRemoteService cardPaymentRemoteService, MobilePaymentRemoteService mobilePaymentRemoteService, ServiceSMSSenderRemoteService smsSenderRemoteService) {
         this.salesOrderRepository = salesOrderRepository;
         this.salesOrderDeliveryRepository = salesOrderDeliveryRepository;
         this.paymentRecordRepository = paymentRecordRepository;
         this.creditCardRepository = creditCardRepository;
         this.mobilePaymentRepository = mobilePaymentRepository;
+        this.salesOrderCommunicationRepository = salesOrderCommunicationRepository;
         this.salesItemRemoteService = salesItemRemoteService;
         this.deliveryRemoteService = deliveryRemoteService;
         this.cardPaymentRemoteService = cardPaymentRemoteService;
         this.mobilePaymentRemoteService = mobilePaymentRemoteService;
+        this.smsSenderRemoteService = smsSenderRemoteService;
     }
 
     public List<SalesOrder> getAllSalesOrders() {
@@ -51,7 +57,12 @@ public class SalesOrderService {
     }
 
     public Long createSalesOrder(String buyerId) {
+        // Create Communications record, since by default it should be there
+        SalesOrderCommunication salesOrderCommunication = new SalesOrderCommunication();
+        this.salesOrderCommunicationRepository.save(salesOrderCommunication);
+
         SalesOrder salesOrder = new SalesOrder(buyerId);
+        salesOrder.setSalesOrderCommunication(salesOrderCommunication);
         this.salesOrderRepository.save(salesOrder);
 
         return salesOrder.getId();
@@ -141,31 +152,9 @@ public class SalesOrderService {
 
         if (salesOrderRecord.isPresent()) {
             if (salesOrderPaymentRecord.getPaymentMethod() == PaymentMethod.CREDIT_CARD) {
-                // Make the Payment
-                Optional<Map<String, String>> paymentResponseRecord = this.cardPaymentRemoteService.submitPayment(salesOrderPaymentRecord.getAmount(), salesOrderPaymentRecord.getCreditCard());
-                if (paymentResponseRecord.isEmpty()) {
-                    // Never going to happen since we use a dummy service.
-                    throw new IllegalStateException("Payment Failed!");
-                }
-                else {
-                    Map<String, String> paymentResponse = paymentResponseRecord.get();
-                    salesOrderPaymentRecord.setPaymentReference(paymentResponse.get("paymentId"));
-                }
-
                 this.creditCardRepository.save(salesOrderPaymentRecord.getCreditCard());
             }
             else if (salesOrderPaymentRecord.getPaymentMethod() == PaymentMethod.MOBILE) {
-                // Make the payment
-                Optional<Map<String, String>> paymentResponseRecord = this.mobilePaymentRemoteService.submitPayment(salesOrderPaymentRecord.getAmount(), salesOrderPaymentRecord.getMobile());
-                if (paymentResponseRecord.isEmpty()) {
-                    // Never going to happen since we use a dummy service.
-                    throw new IllegalStateException("Payment Failed!");
-                }
-                else {
-                    Map<String, String> paymentResponse = paymentResponseRecord.get();
-                    salesOrderPaymentRecord.setPaymentReference(paymentResponse.get("paymentId"));
-                }
-
                 this.mobilePaymentRepository.save(salesOrderPaymentRecord.getMobile());
             }
             this.paymentRecordRepository.save(salesOrderPaymentRecord);
@@ -186,6 +175,74 @@ public class SalesOrderService {
                     Mobile oldMobile = oldSalesOrderPaymentRecord.getMobile();
                     this.mobilePaymentRepository.delete(oldMobile);
                 }
+            }
+        }
+        else {
+            throw new IllegalStateException("No such order found!");
+        }
+    }
+
+    public void payForOrder(Long orderId) {
+        Optional<SalesOrder> salesOrderRecord = this.salesOrderRepository.findById(orderId);
+
+        if (salesOrderRecord.isPresent()) {
+            SalesOrder salesOrder = salesOrderRecord.get();
+            PaymentRecord salesOrderPaymentRecord = salesOrder.getPaymentRecord();
+
+            if (salesOrderPaymentRecord.getPaymentMethod() == PaymentMethod.CREDIT_CARD) {
+                // Make the Payment
+                Optional<Map<String, String>> paymentResponseRecord = this.cardPaymentRemoteService.submitPayment(salesOrderPaymentRecord.getAmount(), salesOrderPaymentRecord.getCreditCard());
+                if (paymentResponseRecord.isEmpty()) {
+                    // Never going to happen since we use a dummy service.
+                    throw new IllegalStateException("Payment Failed!");
+                }
+                else {
+                    Map<String, String> paymentResponse = paymentResponseRecord.get();
+                    salesOrderPaymentRecord.setPaymentReference(paymentResponse.get("paymentId"));
+                    this.paymentRecordRepository.save(salesOrderPaymentRecord);
+                }
+            }
+            else if (salesOrderPaymentRecord.getPaymentMethod() == PaymentMethod.MOBILE) {
+                // Make the payment
+                Optional<Map<String, String>> paymentResponseRecord = this.mobilePaymentRemoteService.submitPayment(salesOrderPaymentRecord.getAmount(), salesOrderPaymentRecord.getMobile());
+                if (paymentResponseRecord.isEmpty()) {
+                    // Never going to happen since we use a dummy service.
+                    throw new IllegalStateException("Payment Failed!");
+                }
+                else {
+                    Map<String, String> paymentResponse = paymentResponseRecord.get();
+                    salesOrderPaymentRecord.setPaymentReference(paymentResponse.get("paymentId"));
+                    this.paymentRecordRepository.save(salesOrderPaymentRecord);
+                }
+            }
+            else {
+                throw new IllegalStateException("Payment method not found for the order!");
+            }
+
+            SalesOrderCommunication sales_order_comm = salesOrder.getSalesOrderCommunication();
+            if (sales_order_comm == null) {
+                sales_order_comm = new SalesOrderCommunication();
+
+                this.salesOrderCommunicationRepository.save(sales_order_comm);
+
+                salesOrder.setSalesOrderCommunication(sales_order_comm);
+                this.salesOrderRepository.save(salesOrder);
+            }
+
+            // Reaching here means the payment has been successful.
+            // Send the SMS
+            // TODO: Remove the following temporary variable with the buyer's mobile number when auth is avail.
+            String to = "3123131";
+            String message = "Payment for your order #" + String.valueOf(salesOrder.getId()) + " has been completed!";
+            Optional<Map<String, String>> smsResponseRecord = this.smsSenderRemoteService.sendSMS(to, message);
+            if (smsResponseRecord.isPresent()) {
+                Map<String, String> smsResponse = smsResponseRecord.get();
+                SalesOrderCommunication salesOrderCommunication = salesOrder.getSalesOrderCommunication();
+                salesOrderCommunication.setSmsRef(smsResponse.get("smsId"));
+                this.salesOrderCommunicationRepository.save(salesOrderCommunication);
+            }
+            else {
+                System.out.println("SMS Sending to " + to + " has been unsuccessful.");
             }
         }
         else {

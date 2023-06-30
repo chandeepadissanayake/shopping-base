@@ -49,9 +49,14 @@ public class SalesOrderController {
         this.salesOrderService.setSalesOrderDeliveryMethod(orderId, salesOrderDelivery);
     }
 
-    @PostMapping("/{orderId}/payment")
+    @PutMapping("/{orderId}/payment")
     public void setPaymentRecord(@PathVariable Long orderId, @RequestBody PaymentRecord salesOrderPaymentRecord) {
         this.salesOrderService.setSalesOrderPaymentRecord(orderId, salesOrderPaymentRecord);
+    }
+
+    @PostMapping("/{orderId}/payment")
+    public void makePayment(@PathVariable Long orderId) {
+        this.salesOrderService.payForOrder(orderId);
     }
 
 }
