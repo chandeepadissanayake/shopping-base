@@ -1,5 +1,6 @@
 package lk.ac.kln.stu.shopping.communication.sms.controllers;
 
+import lk.ac.kln.stu.shopping.communication.sms.models.SMSMessage;
 import lk.ac.kln.stu.shopping.communication.sms.service.SMSSenderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -23,8 +24,8 @@ public class SMSSenderController {
     }
 
     @PostMapping
-    public ResponseEntity<Map<String, String>> sendSMS(@RequestBody String to, @RequestBody  String message) {
-        String smsRef = this.smsSenderService.sendSMSDummy(to, message);
+    public ResponseEntity<Map<String, String>> sendSMS(@RequestBody SMSMessage smsMessage) {
+        String smsRef = this.smsSenderService.sendSMSDummy(smsMessage.getTo(), smsMessage.getMessage());
 
         Map<String, String> response = new HashMap<>();
         response.put("smsId", smsRef);
