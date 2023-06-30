@@ -20,4 +20,6 @@ public class Mobile {
 
     private String mobileNumber;
 
+    private int pin;
+
 }

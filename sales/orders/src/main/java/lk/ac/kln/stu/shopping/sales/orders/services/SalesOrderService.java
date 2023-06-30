@@ -207,7 +207,7 @@ public class SalesOrderService {
             }
             else if (salesOrderPaymentRecord.getPaymentMethod() == PaymentMethod.MOBILE) {
                 // Make the payment
-                Optional<Map<String, String>> paymentResponseRecord = this.mobilePaymentRemoteService.submitPayment(salesOrderPaymentRecord.getAmount(), salesOrderPaymentRecord.getMobile());
+                Optional<Map<String, String>> paymentResponseRecord = this.mobilePaymentRemoteService.submitPayment(salesOrderPaymentRecord.getAmount(), salesOrderPaymentRecord.getMobile(), salesOrderPaymentRecord.getMobile().getPin());
                 if (paymentResponseRecord.isEmpty()) {
                     // Never going to happen since we use a dummy service.
                     throw new IllegalStateException("Payment Failed!");

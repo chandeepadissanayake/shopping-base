@@ -43,12 +43,13 @@ public class MobilePaymentRemoteService {
         return null;
     }
 
-    public Optional<Map<String, String>> submitPayment(float amount, Mobile mobile) {
+    public Optional<Map<String, String>> submitPayment(float amount, Mobile mobile, int pin) {
         try {
             String baseURL = this.getServiceURL();
 
             Map<String, String> requestData = new HashMap<>();
             requestData.put("mobileNumber", mobile.getMobileNumber());
+            requestData.put("pin", String.valueOf(pin));
             requestData.put("amount", String.valueOf(amount));
 
             Mono<Map<String, String>> paymentResponseMono = this.webClient
