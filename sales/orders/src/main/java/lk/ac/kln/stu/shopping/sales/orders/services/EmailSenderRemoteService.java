@@ -2,7 +2,6 @@ package lk.ac.kln.stu.shopping.sales.orders.services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lk.ac.kln.stu.shopping.sales.orders.models.CreditCard;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
@@ -11,7 +10,6 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
@@ -20,38 +18,39 @@ import java.util.Map;
 import java.util.Optional;
 
 @Service
-public class ServiceSMSSenderRemoteService {
+public class EmailSenderRemoteService {
 
-    private static final String REMOTE_SERVICE_NAME = "SERVICE_COMMUNICATION_SMS";
+    private static final String REMOTE_SERVICE_NAME = "SERVICE_COMMUNICATION_EMAIL";
 
     private final DiscoveryClient discoveryClient;
     private final WebClient webClient;
 
     @Autowired
-    public ServiceSMSSenderRemoteService(DiscoveryClient discoveryClient, WebClient webClient) {
+    public EmailSenderRemoteService(DiscoveryClient discoveryClient, WebClient webClient) {
         this.discoveryClient = discoveryClient;
         this.webClient = webClient;
     }
 
     private String getServiceURL() {
-        List<ServiceInstance> list = discoveryClient.getInstances(ServiceSMSSenderRemoteService.REMOTE_SERVICE_NAME);
+        List<ServiceInstance> list = discoveryClient.getInstances(EmailSenderRemoteService.REMOTE_SERVICE_NAME);
 
         if (list != null && list.size() > 0 ) {
-            return list.get(0).getUri().toString() + "/communication/sms";
+            return list.get(0).getUri().toString() + "/communication/email";
         }
 
         return null;
     }
 
-    public Optional<Map<String, String>> sendSMS(String to, String message) {
+    public Optional<Map<String, String>> sendEmail(String to, String subject, String message) {
         try {
             String baseURL = this.getServiceURL();
 
             Map<String, String> requestData = new HashMap<>();
             requestData.put("to", to);
+            requestData.put("subject", subject);
             requestData.put("message", message);
 
-            Mono<Map<String, String>> smsResponseMono = this.webClient
+            Mono<Map<String, String>> emailResponseMono = this.webClient
                     .post()
                     .uri(baseURL)
                     .contentType(MediaType.APPLICATION_JSON)
@@ -59,7 +58,7 @@ public class ServiceSMSSenderRemoteService {
                     .retrieve()
                     .bodyToMono(ParameterizedTypeReference.forType(Map.class));
 
-            return Optional.ofNullable(smsResponseMono.block());
+            return Optional.ofNullable(emailResponseMono.block());
         }
 
         catch (JsonProcessingException e) {

@@ -31,10 +31,12 @@ public class SalesOrderService {
 
     private final MobilePaymentRemoteService mobilePaymentRemoteService;
 
-    private final ServiceSMSSenderRemoteService smsSenderRemoteService;
+    private final SMSSenderRemoteService smsSenderRemoteService;
+
+    private final EmailSenderRemoteService emailSenderRemoteService;
 
     @Autowired
-    public SalesOrderService(SalesOrderRepository salesOrderRepository, SalesOrderDeliveryRepository salesOrderDeliveryRepository, PaymentRecordRepository paymentRecordRepository, CreditCardRepository creditCardRepository, MobilePaymentRepository mobilePaymentRepository, SalesOrderCommunicationRepository salesOrderCommunicationRepository, SalesItemRemoteService salesItemRemoteService, WebClient webClient, DeliveryRemoteService deliveryRemoteService, CardPaymentRemoteService cardPaymentRemoteService, MobilePaymentRemoteService mobilePaymentRemoteService, ServiceSMSSenderRemoteService smsSenderRemoteService) {
+    public SalesOrderService(SalesOrderRepository salesOrderRepository, SalesOrderDeliveryRepository salesOrderDeliveryRepository, PaymentRecordRepository paymentRecordRepository, CreditCardRepository creditCardRepository, MobilePaymentRepository mobilePaymentRepository, SalesOrderCommunicationRepository salesOrderCommunicationRepository, SalesItemRemoteService salesItemRemoteService, WebClient webClient, DeliveryRemoteService deliveryRemoteService, CardPaymentRemoteService cardPaymentRemoteService, MobilePaymentRemoteService mobilePaymentRemoteService, SMSSenderRemoteService smsSenderRemoteService, EmailSenderRemoteService emailSenderRemoteService) {
         this.salesOrderRepository = salesOrderRepository;
         this.salesOrderDeliveryRepository = salesOrderDeliveryRepository;
         this.paymentRecordRepository = paymentRecordRepository;
@@ -46,6 +48,7 @@ public class SalesOrderService {
         this.cardPaymentRemoteService = cardPaymentRemoteService;
         this.mobilePaymentRemoteService = mobilePaymentRemoteService;
         this.smsSenderRemoteService = smsSenderRemoteService;
+        this.emailSenderRemoteService = emailSenderRemoteService;
     }
 
     public List<SalesOrder> getAllSalesOrders() {
@@ -232,9 +235,9 @@ public class SalesOrderService {
             // Reaching here means the payment has been successful.
             // Send the SMS
             // TODO: Remove the following temporary variable with the buyer's mobile number when auth is avail.
-            String to = "3123131";
-            String message = "Payment for your order #" + String.valueOf(salesOrder.getId()) + " has been completed!";
-            Optional<Map<String, String>> smsResponseRecord = this.smsSenderRemoteService.sendSMS(to, message);
+            String smsTo = "3123131";
+            String smsMessage = "Payment for your order #" + String.valueOf(salesOrder.getId()) + " has been completed!";
+            Optional<Map<String, String>> smsResponseRecord = this.smsSenderRemoteService.sendSMS(smsTo, smsMessage);
             if (smsResponseRecord.isPresent()) {
                 Map<String, String> smsResponse = smsResponseRecord.get();
                 SalesOrderCommunication salesOrderCommunication = salesOrder.getSalesOrderCommunication();
@@ -242,7 +245,22 @@ public class SalesOrderService {
                 this.salesOrderCommunicationRepository.save(salesOrderCommunication);
             }
             else {
-                System.out.println("SMS Sending to " + to + " has been unsuccessful.");
+                System.out.println("SMS Sending to " + smsTo + " has been unsuccessful.");
+            }
+
+            // Send the Email
+            String emailTo = "abc@ggg.com";
+            String emailSubject = "Payment Success Notification for the Order #" + String.valueOf(salesOrder.getId());
+            String emailMessage = "Payment for your order #" + String.valueOf(salesOrder.getId()) + " has been completed!";
+            Optional<Map<String, String>> emailResponseRecord = this.emailSenderRemoteService.sendEmail(emailTo, emailSubject, emailMessage);
+            if (emailResponseRecord.isPresent()) {
+                Map<String, String> emailResponse = emailResponseRecord.get();
+                SalesOrderCommunication salesOrderCommunication = salesOrder.getSalesOrderCommunication();
+                salesOrderCommunication.setEmailRef(emailResponse.get("emailId"));
+                this.salesOrderCommunicationRepository.save(salesOrderCommunication);
+            }
+            else {
+                System.out.println("Email Sending to " + emailTo + " has been unsuccessful.");
             }
         }
         else {
