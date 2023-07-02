@@ -1,4 +1,4 @@
-package lk.ac.kln.stu.shopping.auth.jwtutils;
+package lk.ac.kln.stu.shopping.auth.authentication;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

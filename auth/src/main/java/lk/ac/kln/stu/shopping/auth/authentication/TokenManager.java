@@ -1,7 +1,6 @@
-package lk.ac.kln.stu.shopping.auth.jwtutils;
+package lk.ac.kln.stu.shopping.auth.authentication;
 
 import io.jsonwebtoken.SignatureException;
-import lk.ac.kln.stu.shopping.auth.models.Role;
 import lk.ac.kln.stu.shopping.auth.models.User;
 import org.springframework.beans.factory.annotation.Value;
 import io.jsonwebtoken.Claims; import io.jsonwebtoken.Jwts;

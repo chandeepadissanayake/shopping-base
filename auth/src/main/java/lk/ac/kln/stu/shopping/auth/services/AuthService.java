@@ -1,12 +1,11 @@
 package lk.ac.kln.stu.shopping.auth.services;
 
-import lk.ac.kln.stu.shopping.auth.jwtutils.AuthUserDetailsService;
-import lk.ac.kln.stu.shopping.auth.jwtutils.TokenManager;
+import lk.ac.kln.stu.shopping.auth.authentication.AuthUserDetailsService;
+import lk.ac.kln.stu.shopping.auth.authentication.TokenManager;
 import lk.ac.kln.stu.shopping.auth.models.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 @Service

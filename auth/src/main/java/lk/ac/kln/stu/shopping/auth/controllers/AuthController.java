@@ -1,8 +1,7 @@
 package lk.ac.kln.stu.shopping.auth.controllers;
 
-import jakarta.annotation.security.RolesAllowed;
-import lk.ac.kln.stu.shopping.auth.jwtutils.AuthRequestModel;
-import lk.ac.kln.stu.shopping.auth.jwtutils.AuthResponseModel;
+import lk.ac.kln.stu.shopping.auth.authentication.AuthRequestModel;
+import lk.ac.kln.stu.shopping.auth.authentication.AuthResponseModel;
 import lk.ac.kln.stu.shopping.auth.services.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

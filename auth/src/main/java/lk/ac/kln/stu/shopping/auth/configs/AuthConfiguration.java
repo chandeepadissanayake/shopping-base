@@ -1,8 +1,8 @@
 package lk.ac.kln.stu.shopping.auth.configs;
 
-import lk.ac.kln.stu.shopping.auth.jwtutils.AuthEntryPoint;
-import lk.ac.kln.stu.shopping.auth.jwtutils.AuthRequestFilter;
-import lk.ac.kln.stu.shopping.auth.jwtutils.AuthUserDetailsService;
+import lk.ac.kln.stu.shopping.auth.authentication.AuthEntryPoint;
+import lk.ac.kln.stu.shopping.auth.authentication.AuthRequestFilter;
+import lk.ac.kln.stu.shopping.auth.authentication.AuthUserDetailsService;
 import lk.ac.kln.stu.shopping.auth.models.Role;
 import lk.ac.kln.stu.shopping.auth.models.User;
 import lk.ac.kln.stu.shopping.auth.repositories.RoleRepository;
@@ -10,6 +10,7 @@ import lk.ac.kln.stu.shopping.auth.repositories.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -72,6 +73,7 @@ public class AuthConfiguration {
                 .csrf().disable()
                 .httpBasic(Customizer.withDefaults())
                 .authorizeRequests()
+                    .requestMatchers(HttpMethod.POST, "/user").permitAll()
                     .requestMatchers("/login/**").permitAll()
 //                    .requestMatchers("/seller").hasRole("SELLER")
 //                    .requestMatchers("/buyer").hasRole("BUYER")

@@ -1,4 +1,4 @@
-package lk.ac.kln.stu.shopping.auth.jwtutils;
+package lk.ac.kln.stu.shopping.auth.authentication;
 
 import lk.ac.kln.stu.shopping.auth.models.User;
 import lk.ac.kln.stu.shopping.auth.repositories.UserRepository;

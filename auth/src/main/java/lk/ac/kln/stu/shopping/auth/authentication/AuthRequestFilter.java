@@ -1,17 +1,15 @@
-package lk.ac.kln.stu.shopping.auth.jwtutils;
+package lk.ac.kln.stu.shopping.auth.authentication;
 
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.SignatureException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lk.ac.kln.stu.shopping.auth.models.Role;
 import lk.ac.kln.stu.shopping.auth.models.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -20,6 +18,8 @@ import org.springframework.util.PathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 public class AuthRequestFilter extends OncePerRequestFilter {
@@ -29,6 +29,9 @@ public class AuthRequestFilter extends OncePerRequestFilter {
 
     private final PathMatcher pathMatcher = new AntPathMatcher();
     private final String[] excludedPaths = {"/login"};
+    private final Map<String, HttpMethod> excludedPathsWithMethods = new HashMap<>() {{
+        put("/user", HttpMethod.POST);
+    }};
 
     @Autowired
     public AuthRequestFilter(AuthUserDetailsService authUserDetailsService, TokenManager tokenManager) {
@@ -38,11 +41,19 @@ public class AuthRequestFilter extends OncePerRequestFilter {
 
     private boolean shouldSkipFilter(HttpServletRequest request) {
         String path = request.getServletPath();
-        for (String excludedPath : excludedPaths) {
+
+        for (String excludedPath : this.excludedPaths) {
             if (pathMatcher.match(excludedPath, path)) {
                 return true;
             }
         }
+
+        for (Map.Entry<String, HttpMethod> endpointMethodPair : this.excludedPathsWithMethods.entrySet()) {
+            if (pathMatcher.match(endpointMethodPair.getKey(), path) && endpointMethodPair.getValue().toString().equals(request.getMethod())) {
+                return true;
+            }
+        }
+
         return false;
     }
 
