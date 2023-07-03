@@ -69,7 +69,7 @@ public class SalesOrderService {
         SalesOrderCommunication salesOrderCommunication = new SalesOrderCommunication();
         this.salesOrderCommunicationRepository.save(salesOrderCommunication);
 
-        SalesOrder salesOrder = new SalesOrder(Long.parseLong(userRecord.get("id")));
+        SalesOrder salesOrder = new SalesOrder(userRecord.get("id"));
         salesOrder.setSalesOrderCommunication(salesOrderCommunication);
         this.salesOrderRepository.save(salesOrder);
 
