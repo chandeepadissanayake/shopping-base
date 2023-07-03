@@ -5,6 +5,7 @@ import lk.ac.kln.stu.shopping.sales.orders.models.SalesOrder;
 import lk.ac.kln.stu.shopping.sales.orders.models.SalesOrderDelivery;
 import lk.ac.kln.stu.shopping.sales.orders.services.SalesOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,9 +36,10 @@ public class SalesOrderController {
         return salesOrderRecord.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PostMapping(path = "/{buyerId}")
-    public ResponseEntity<Map<String, Long>> createSalesOrder(@PathVariable String buyerId) {
-        Long salesOrderId = this.salesOrderService.createSalesOrder(buyerId);
+    @PostMapping()
+    public ResponseEntity<Map<String, Long>> createSalesOrder(@RequestHeader(HttpHeaders.AUTHORIZATION) String headerAuthorization) {
+        String token = headerAuthorization.substring(7);
+        Long salesOrderId = this.salesOrderService.createSalesOrder(token);
 
         Map<String, Long> response = new HashMap<>();
         response.put("sales_order_id", salesOrderId);
@@ -55,8 +57,9 @@ public class SalesOrderController {
     }
 
     @PostMapping("/{orderId}/payment")
-    public void makePayment(@PathVariable Long orderId) {
-        this.salesOrderService.payForOrder(orderId);
+    public void makePayment(@RequestHeader(HttpHeaders.AUTHORIZATION) String headerAuthorization, @PathVariable Long orderId) {
+        String token = headerAuthorization.substring(7);
+        this.salesOrderService.payForOrder(token, orderId);
     }
 
 }

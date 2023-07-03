@@ -21,7 +21,7 @@ public class SalesOrder {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequence_sales_order")
     private @Setter(AccessLevel.PROTECTED) Long id;
 
-    private @Setter(AccessLevel.PROTECTED) String buyerId;
+    private @Setter(AccessLevel.PROTECTED) Long buyerId;
 
     @OneToOne(cascade = CascadeType.PERSIST)
     private SalesOrderDelivery deliveryRecord;
@@ -35,7 +35,7 @@ public class SalesOrder {
     @OneToOne(cascade = CascadeType.PERSIST)
     private SalesOrderCommunication salesOrderCommunication;
 
-    public SalesOrder(String buyerId) {
+    public SalesOrder(Long buyerId) {
         this.buyerId = buyerId;
     }
 }

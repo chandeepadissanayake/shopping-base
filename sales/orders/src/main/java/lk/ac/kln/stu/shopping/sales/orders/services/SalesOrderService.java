@@ -23,6 +23,8 @@ public class SalesOrderService {
 
     private final SalesOrderCommunicationRepository salesOrderCommunicationRepository;
 
+    private final UserRemoteService userRemoteService;
+
     private final SalesItemRemoteService salesItemRemoteService;
 
     private final DeliveryRemoteService deliveryRemoteService;
@@ -36,13 +38,14 @@ public class SalesOrderService {
     private final EmailSenderRemoteService emailSenderRemoteService;
 
     @Autowired
-    public SalesOrderService(SalesOrderRepository salesOrderRepository, SalesOrderDeliveryRepository salesOrderDeliveryRepository, PaymentRecordRepository paymentRecordRepository, CreditCardRepository creditCardRepository, MobilePaymentRepository mobilePaymentRepository, SalesOrderCommunicationRepository salesOrderCommunicationRepository, SalesItemRemoteService salesItemRemoteService, WebClient webClient, DeliveryRemoteService deliveryRemoteService, CardPaymentRemoteService cardPaymentRemoteService, MobilePaymentRemoteService mobilePaymentRemoteService, SMSSenderRemoteService smsSenderRemoteService, EmailSenderRemoteService emailSenderRemoteService) {
+    public SalesOrderService(SalesOrderRepository salesOrderRepository, SalesOrderDeliveryRepository salesOrderDeliveryRepository, PaymentRecordRepository paymentRecordRepository, CreditCardRepository creditCardRepository, MobilePaymentRepository mobilePaymentRepository, SalesOrderCommunicationRepository salesOrderCommunicationRepository, UserRemoteService userRemoteService, SalesItemRemoteService salesItemRemoteService, WebClient webClient, DeliveryRemoteService deliveryRemoteService, CardPaymentRemoteService cardPaymentRemoteService, MobilePaymentRemoteService mobilePaymentRemoteService, SMSSenderRemoteService smsSenderRemoteService, EmailSenderRemoteService emailSenderRemoteService) {
         this.salesOrderRepository = salesOrderRepository;
         this.salesOrderDeliveryRepository = salesOrderDeliveryRepository;
         this.paymentRecordRepository = paymentRecordRepository;
         this.creditCardRepository = creditCardRepository;
         this.mobilePaymentRepository = mobilePaymentRepository;
         this.salesOrderCommunicationRepository = salesOrderCommunicationRepository;
+        this.userRemoteService = userRemoteService;
         this.salesItemRemoteService = salesItemRemoteService;
         this.deliveryRemoteService = deliveryRemoteService;
         this.cardPaymentRemoteService = cardPaymentRemoteService;
@@ -59,12 +62,14 @@ public class SalesOrderService {
         return this.salesOrderRepository.findById(id);
     }
 
-    public Long createSalesOrder(String buyerId) {
+    public Long createSalesOrder(String token) {
+        Map<String, String> userRecord = this.userRemoteService.getUser(token).get(); // Guaranteed to be not null.
+
         // Create Communications record, since by default it should be there
         SalesOrderCommunication salesOrderCommunication = new SalesOrderCommunication();
         this.salesOrderCommunicationRepository.save(salesOrderCommunication);
 
-        SalesOrder salesOrder = new SalesOrder(buyerId);
+        SalesOrder salesOrder = new SalesOrder(Long.parseLong(userRecord.get("id")));
         salesOrder.setSalesOrderCommunication(salesOrderCommunication);
         this.salesOrderRepository.save(salesOrder);
 
@@ -185,7 +190,7 @@ public class SalesOrderService {
         }
     }
 
-    public void payForOrder(Long orderId) {
+    public void payForOrder(String token, Long orderId) {
         Optional<SalesOrder> salesOrderRecord = this.salesOrderRepository.findById(orderId);
 
         if (salesOrderRecord.isPresent()) {
@@ -222,20 +227,23 @@ public class SalesOrderService {
                 throw new IllegalStateException("Payment method not found for the order!");
             }
 
-            SalesOrderCommunication sales_order_comm = salesOrder.getSalesOrderCommunication();
-            if (sales_order_comm == null) {
-                sales_order_comm = new SalesOrderCommunication();
+            SalesOrderCommunication salesOrderComm = salesOrder.getSalesOrderCommunication();
+            if (salesOrderComm == null) {
+                salesOrderComm = new SalesOrderCommunication();
 
-                this.salesOrderCommunicationRepository.save(sales_order_comm);
+                this.salesOrderCommunicationRepository.save(salesOrderComm);
 
-                salesOrder.setSalesOrderCommunication(sales_order_comm);
+                salesOrder.setSalesOrderCommunication(salesOrderComm);
                 this.salesOrderRepository.save(salesOrder);
             }
+
+            // Fetch user details
+            Map<String, String > userRecord = this.userRemoteService.getUser(token).get();
 
             // Reaching here means the payment has been successful.
             // Send the SMS
             // TODO: Remove the following temporary variable with the buyer's mobile number when auth is avail.
-            String smsTo = "3123131";
+            String smsTo = userRecord.get("mobile");
             String smsMessage = "Payment for your order #" + String.valueOf(salesOrder.getId()) + " has been completed!";
             Optional<Map<String, String>> smsResponseRecord = this.smsSenderRemoteService.sendSMS(smsTo, smsMessage);
             if (smsResponseRecord.isPresent()) {
@@ -249,7 +257,7 @@ public class SalesOrderService {
             }
 
             // Send the Email
-            String emailTo = "abc@ggg.com";
+            String emailTo = userRecord.get("email");
             String emailSubject = "Payment Success Notification for the Order #" + String.valueOf(salesOrder.getId());
             String emailMessage = "Payment for your order #" + String.valueOf(salesOrder.getId()) + " has been completed!";
             Optional<Map<String, String>> emailResponseRecord = this.emailSenderRemoteService.sendEmail(emailTo, emailSubject, emailMessage);
