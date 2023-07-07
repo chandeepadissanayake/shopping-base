@@ -1,0 +1,724 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<api context="/api/v1" name="ShoppingAPI" xmlns="http://ws.apache.org/ns/synapse">
+    <resource methods="POST" url-mapping="/user/login">
+        <inSequence>
+            <send>
+                <endpoint>
+                    <http method="post" uri-template="https://auth-3mkkb.ondigitalocean.app/login">
+                        <suspendOnFailure>
+                            <initialDuration>-1</initialDuration>
+                            <progressionFactor>1</progressionFactor>
+                        </suspendOnFailure>
+                        <markForSuspension>
+                            <retriesBeforeSuspension>0</retriesBeforeSuspension>
+                        </markForSuspension>
+                    </http>
+                </endpoint>
+            </send>
+        </inSequence>
+        <outSequence>
+            <send/>
+        </outSequence>
+        <faultSequence/>
+    </resource>
+    <resource methods="GET" url-mapping="/user">
+        <inSequence>
+            <send>
+                <endpoint>
+                    <http method="get" uri-template="https://auth-3mkkb.ondigitalocean.app/user">
+                        <suspendOnFailure>
+                            <initialDuration>-1</initialDuration>
+                            <progressionFactor>1</progressionFactor>
+                        </suspendOnFailure>
+                        <markForSuspension>
+                            <retriesBeforeSuspension>0</retriesBeforeSuspension>
+                        </markForSuspension>
+                    </http>
+                </endpoint>
+            </send>
+        </inSequence>
+        <outSequence>
+            <send/>
+        </outSequence>
+        <faultSequence/>
+    </resource>
+    <resource methods="POST" url-mapping="/user">
+        <inSequence>
+            <send>
+                <endpoint>
+                    <http method="post" uri-template="https://auth-3mkkb.ondigitalocean.app/user">
+                        <suspendOnFailure>
+                            <initialDuration>-1</initialDuration>
+                            <progressionFactor>1</progressionFactor>
+                        </suspendOnFailure>
+                        <markForSuspension>
+                            <retriesBeforeSuspension>0</retriesBeforeSuspension>
+                        </markForSuspension>
+                    </http>
+                </endpoint>
+            </send>
+        </inSequence>
+        <outSequence>
+            <send/>
+        </outSequence>
+        <faultSequence/>
+    </resource>
+    <resource methods="GET" uri-template="/sales/items">
+        <inSequence>
+            <property expression="$trp:Authorization" name="Authorization" scope="default" type="STRING"/>
+            <call>
+                <endpoint>
+                    <http method="get" uri-template="https://auth-3mkkb.ondigitalocean.app/user">
+                        <suspendOnFailure>
+                            <initialDuration>-1</initialDuration>
+                            <progressionFactor>1</progressionFactor>
+                        </suspendOnFailure>
+                        <markForSuspension>
+                            <retriesBeforeSuspension>0</retriesBeforeSuspension>
+                        </markForSuspension>
+                    </http>
+                </endpoint>
+            </call>
+            <filter regex="200" source="$axis2:HTTP_SC">
+                <then>
+                    <send>
+                        <endpoint>
+                            <http method="get" uri-template="https://items-jny39.ondigitalocean.app/sales/items">
+                                <suspendOnFailure>
+                                    <initialDuration>-1</initialDuration>
+                                    <progressionFactor>1</progressionFactor>
+                                </suspendOnFailure>
+                                <markForSuspension>
+                                    <retriesBeforeSuspension>0</retriesBeforeSuspension>
+                                </markForSuspension>
+                            </http>
+                        </endpoint>
+                    </send>
+                </then>
+                <else>
+                    <respond/>
+                </else>
+            </filter>
+        </inSequence>
+        <outSequence>
+            <send/>
+        </outSequence>
+        <faultSequence/>
+    </resource>
+    <resource methods="GET" uri-template="/sales/items/id={itemId}">
+        <inSequence>
+            <property expression="$trp:Authorization" name="Authorization" scope="default" type="STRING"/>
+            <call>
+                <endpoint>
+                    <http method="get" uri-template="https://auth-3mkkb.ondigitalocean.app/user">
+                        <suspendOnFailure>
+                            <initialDuration>-1</initialDuration>
+                            <progressionFactor>1</progressionFactor>
+                        </suspendOnFailure>
+                        <markForSuspension>
+                            <retriesBeforeSuspension>0</retriesBeforeSuspension>
+                        </markForSuspension>
+                    </http>
+                </endpoint>
+            </call>
+            <property expression="get-property('uri.var.itemId')" name="itemId" scope="default" type="STRING"/>
+            <filter regex="200" source="$axis2:HTTP_SC">
+                <then>
+                    <send>
+                        <endpoint>
+                            <http method="get" uri-template="https://items-jny39.ondigitalocean.app/sales/items/id={uri.var.itemId}">
+                                <suspendOnFailure>
+                                    <initialDuration>-1</initialDuration>
+                                    <progressionFactor>1</progressionFactor>
+                                </suspendOnFailure>
+                                <markForSuspension>
+                                    <retriesBeforeSuspension>0</retriesBeforeSuspension>
+                                </markForSuspension>
+                            </http>
+                        </endpoint>
+                    </send>
+                </then>
+                <else>
+                    <respond/>
+                </else>
+            </filter>
+        </inSequence>
+        <outSequence>
+            <send/>
+        </outSequence>
+        <faultSequence/>
+    </resource>
+    <resource methods="GET" uri-template="/sales/items/name={itemName}">
+        <inSequence>
+            <property expression="$trp:Authorization" name="Authorization" scope="default" type="STRING"/>
+            <call>
+                <endpoint>
+                    <http method="get" uri-template="https://auth-3mkkb.ondigitalocean.app/user">
+                        <suspendOnFailure>
+                            <initialDuration>-1</initialDuration>
+                            <progressionFactor>1</progressionFactor>
+                        </suspendOnFailure>
+                        <markForSuspension>
+                            <retriesBeforeSuspension>0</retriesBeforeSuspension>
+                        </markForSuspension>
+                    </http>
+                </endpoint>
+            </call>
+            <property expression="get-property('uri.var.itemName')" name="itemName" scope="default" type="STRING"/>
+            <filter regex="200" source="$axis2:HTTP_SC">
+                <then>
+                    <send>
+                        <endpoint>
+                            <http method="get" uri-template="https://items-jny39.ondigitalocean.app/sales/items/name={uri.var.itemName}">
+                                <suspendOnFailure>
+                                    <initialDuration>-1</initialDuration>
+                                    <progressionFactor>1</progressionFactor>
+                                </suspendOnFailure>
+                                <markForSuspension>
+                                    <retriesBeforeSuspension>0</retriesBeforeSuspension>
+                                </markForSuspension>
+                            </http>
+                        </endpoint>
+                    </send>
+                </then>
+                <else>
+                    <respond/>
+                </else>
+            </filter>
+        </inSequence>
+        <outSequence>
+            <send/>
+        </outSequence>
+        <faultSequence/>
+    </resource>
+    <resource methods="POST" uri-template="/sales/items">
+        <inSequence>
+            <property expression="json-eval($)" name="ORIGINAL_PAYLOAD" scope="default" type="STRING"/>
+            <property expression="$trp:Authorization" name="Authorization" scope="default" type="STRING"/>
+            <call>
+                <endpoint>
+                    <http method="post" uri-template="https://auth-3mkkb.ondigitalocean.app/seller">
+                        <suspendOnFailure>
+                            <initialDuration>-1</initialDuration>
+                            <progressionFactor>1</progressionFactor>
+                        </suspendOnFailure>
+                        <markForSuspension>
+                            <retriesBeforeSuspension>0</retriesBeforeSuspension>
+                        </markForSuspension>
+                    </http>
+                </endpoint>
+            </call>
+            <filter regex="200" source="$axis2:HTTP_SC">
+                <then>
+                    <property name="messageType" scope="axis2" type="STRING" value="application/json"/>
+                    <payloadFactory media-type="json">
+                        <format>
+				            $1
+				        </format>
+                        <args>
+                            <arg evaluator="xml" expression="get-property('ORIGINAL_PAYLOAD')"/>
+                        </args>
+                    </payloadFactory>
+                    <send>
+                        <endpoint>
+                            <http method="post" uri-template="https://items-jny39.ondigitalocean.app/sales/items">
+                                <suspendOnFailure>
+                                    <initialDuration>-1</initialDuration>
+                                    <progressionFactor>1</progressionFactor>
+                                </suspendOnFailure>
+                                <markForSuspension>
+                                    <retriesBeforeSuspension>0</retriesBeforeSuspension>
+                                </markForSuspension>
+                            </http>
+                        </endpoint>
+                    </send>
+                </then>
+                <else>
+                    <respond/>
+                </else>
+            </filter>
+        </inSequence>
+        <outSequence>
+            <send/>
+        </outSequence>
+        <faultSequence/>
+    </resource>
+    <resource methods="PUT" uri-template="/sales/items">
+        <inSequence>
+            <property expression="json-eval($)" name="ORIGINAL_PAYLOAD" scope="default" type="STRING"/>
+            <property expression="$trp:Authorization" name="Authorization" scope="default" type="STRING"/>
+            <call>
+                <endpoint>
+                    <http method="post" uri-template="https://auth-3mkkb.ondigitalocean.app/seller">
+                        <suspendOnFailure>
+                            <initialDuration>-1</initialDuration>
+                            <progressionFactor>1</progressionFactor>
+                        </suspendOnFailure>
+                        <markForSuspension>
+                            <retriesBeforeSuspension>0</retriesBeforeSuspension>
+                        </markForSuspension>
+                    </http>
+                </endpoint>
+            </call>
+            <filter regex="200" source="$axis2:HTTP_SC">
+                <then>
+                    <property name="messageType" scope="axis2" type="STRING" value="application/json"/>
+                    <payloadFactory media-type="json">
+                        <format>
+				            $1
+				        </format>
+                        <args>
+                            <arg evaluator="xml" expression="get-property('ORIGINAL_PAYLOAD')"/>
+                        </args>
+                    </payloadFactory>
+                    <send>
+                        <endpoint>
+                            <http method="put" uri-template="https://items-jny39.ondigitalocean.app/sales/items">
+                                <suspendOnFailure>
+                                    <initialDuration>-1</initialDuration>
+                                    <progressionFactor>1</progressionFactor>
+                                </suspendOnFailure>
+                                <markForSuspension>
+                                    <retriesBeforeSuspension>0</retriesBeforeSuspension>
+                                </markForSuspension>
+                            </http>
+                        </endpoint>
+                    </send>
+                </then>
+                <else>
+                    <respond/>
+                </else>
+            </filter>
+        </inSequence>
+        <outSequence>
+            <send/>
+        </outSequence>
+        <faultSequence/>
+    </resource>
+    <resource methods="DELETE" uri-template="/sales/items/{itemId}">
+        <inSequence>
+            <property expression="$trp:Authorization" name="Authorization" scope="default" type="STRING"/>
+            <call>
+                <endpoint>
+                    <http method="post" uri-template="https://auth-3mkkb.ondigitalocean.app/seller">
+                        <suspendOnFailure>
+                            <initialDuration>-1</initialDuration>
+                            <progressionFactor>1</progressionFactor>
+                        </suspendOnFailure>
+                        <markForSuspension>
+                            <retriesBeforeSuspension>0</retriesBeforeSuspension>
+                        </markForSuspension>
+                    </http>
+                </endpoint>
+            </call>
+            <property expression="get-property('uri.var.itemId')" name="itemId" scope="default" type="STRING"/>
+            <filter regex="200" source="$axis2:HTTP_SC">
+                <then>
+                    <send>
+                        <endpoint>
+                            <http method="delete" uri-template="https://items-jny39.ondigitalocean.app/sales/items/{uri.var.itemId}">
+                                <suspendOnFailure>
+                                    <initialDuration>-1</initialDuration>
+                                    <progressionFactor>1</progressionFactor>
+                                </suspendOnFailure>
+                                <markForSuspension>
+                                    <retriesBeforeSuspension>0</retriesBeforeSuspension>
+                                </markForSuspension>
+                            </http>
+                        </endpoint>
+                    </send>
+                </then>
+                <else>
+                    <respond/>
+                </else>
+            </filter>
+        </inSequence>
+        <outSequence>
+            <send/>
+        </outSequence>
+        <faultSequence/>
+    </resource>
+    <resource methods="GET" uri-template="/sales/orders/">
+        <inSequence>
+            <property expression="$trp:Authorization" name="Authorization" scope="default" type="STRING"/>
+            <call>
+                <endpoint>
+                    <http method="post" uri-template="https://auth-3mkkb.ondigitalocean.app/buyer">
+                        <suspendOnFailure>
+                            <initialDuration>-1</initialDuration>
+                            <progressionFactor>1</progressionFactor>
+                        </suspendOnFailure>
+                        <markForSuspension>
+                            <retriesBeforeSuspension>0</retriesBeforeSuspension>
+                        </markForSuspension>
+                    </http>
+                </endpoint>
+            </call>
+            <filter regex="200" source="$axis2:HTTP_SC">
+                <then>
+                    <property expression="$trp:Authorization" name="Authorization" scope="default" type="STRING"/>
+                    <send>
+                        <endpoint>
+                            <http method="get" uri-template="https://orders-ppst6.ondigitalocean.app/sales/orders">
+                                <suspendOnFailure>
+                                    <initialDuration>-1</initialDuration>
+                                    <progressionFactor>1</progressionFactor>
+                                </suspendOnFailure>
+                                <markForSuspension>
+                                    <retriesBeforeSuspension>0</retriesBeforeSuspension>
+                                </markForSuspension>
+                            </http>
+                        </endpoint>
+                    </send>
+                </then>
+                <else>
+                    <respond/>
+                </else>
+            </filter>
+        </inSequence>
+        <outSequence>
+            <send/>
+        </outSequence>
+        <faultSequence/>
+    </resource>
+    <resource methods="GET" uri-template="/sales/orders/{orderId}">
+        <inSequence>
+            <property expression="$trp:Authorization" name="Authorization" scope="default" type="STRING"/>
+            <call>
+                <endpoint>
+                    <http method="post" uri-template="https://auth-3mkkb.ondigitalocean.app/buyer">
+                        <suspendOnFailure>
+                            <initialDuration>-1</initialDuration>
+                            <progressionFactor>1</progressionFactor>
+                        </suspendOnFailure>
+                        <markForSuspension>
+                            <retriesBeforeSuspension>0</retriesBeforeSuspension>
+                        </markForSuspension>
+                    </http>
+                </endpoint>
+            </call>
+            <property expression="get-property('uri.var.orderId')" name="orderId" scope="default" type="STRING"/>
+            <filter regex="200" source="$axis2:HTTP_SC">
+                <then>
+                    <property expression="$trp:Authorization" name="Authorization" scope="default" type="STRING"/>
+                    <send>
+                        <endpoint>
+                            <http method="get" uri-template="https://orders-ppst6.ondigitalocean.app/sales/orders/{uri.var.orderId}">
+                                <suspendOnFailure>
+                                    <initialDuration>-1</initialDuration>
+                                    <progressionFactor>1</progressionFactor>
+                                </suspendOnFailure>
+                                <markForSuspension>
+                                    <retriesBeforeSuspension>0</retriesBeforeSuspension>
+                                </markForSuspension>
+                            </http>
+                        </endpoint>
+                    </send>
+                </then>
+                <else>
+                    <respond/>
+                </else>
+            </filter>
+        </inSequence>
+        <outSequence>
+            <send/>
+        </outSequence>
+        <faultSequence/>
+    </resource>
+    <resource methods="POST" uri-template="/sales/orders">
+        <inSequence>
+            <property expression="json-eval($)" name="ORIGINAL_PAYLOAD" scope="default" type="STRING"/>
+            <property expression="$trp:Authorization" name="Authorization" scope="default" type="STRING"/>
+            <call>
+                <endpoint>
+                    <http method="post" uri-template="https://auth-3mkkb.ondigitalocean.app/buyer">
+                        <suspendOnFailure>
+                            <initialDuration>-1</initialDuration>
+                            <progressionFactor>1</progressionFactor>
+                        </suspendOnFailure>
+                        <markForSuspension>
+                            <retriesBeforeSuspension>0</retriesBeforeSuspension>
+                        </markForSuspension>
+                    </http>
+                </endpoint>
+            </call>
+            <filter regex="200" source="$axis2:HTTP_SC">
+                <then>
+                    <property expression="$trp:Authorization" name="Authorization" scope="default" type="STRING"/>
+                    <property name="messageType" scope="axis2" type="STRING" value="application/json"/>
+                    <payloadFactory media-type="json">
+                        <format>
+				            $1
+				        </format>
+                        <args>
+                            <arg evaluator="xml" expression="get-property('ORIGINAL_PAYLOAD')"/>
+                        </args>
+                    </payloadFactory>
+                    <send>
+                        <endpoint>
+                            <http method="post" uri-template="https://orders-ppst6.ondigitalocean.app/sales/orders">
+                                <suspendOnFailure>
+                                    <initialDuration>-1</initialDuration>
+                                    <progressionFactor>1</progressionFactor>
+                                </suspendOnFailure>
+                                <markForSuspension>
+                                    <retriesBeforeSuspension>0</retriesBeforeSuspension>
+                                </markForSuspension>
+                            </http>
+                        </endpoint>
+                    </send>
+                </then>
+                <else>
+                    <respond/>
+                </else>
+            </filter>
+        </inSequence>
+        <outSequence>
+            <send/>
+        </outSequence>
+        <faultSequence/>
+    </resource>
+    <resource methods="POST" uri-template="/sales/orders/{orderId}/delivery">
+        <inSequence>
+            <property expression="json-eval($)" name="ORIGINAL_PAYLOAD" scope="default" type="STRING"/>
+            <property expression="$trp:Authorization" name="Authorization" scope="default" type="STRING"/>
+            <call>
+                <endpoint>
+                    <http method="post" uri-template="https://auth-3mkkb.ondigitalocean.app/buyer">
+                        <suspendOnFailure>
+                            <initialDuration>-1</initialDuration>
+                            <progressionFactor>1</progressionFactor>
+                        </suspendOnFailure>
+                        <markForSuspension>
+                            <retriesBeforeSuspension>0</retriesBeforeSuspension>
+                        </markForSuspension>
+                    </http>
+                </endpoint>
+            </call>
+            <property expression="get-property('uri.var.orderId')" name="orderId" scope="default" type="STRING"/>
+            <filter regex="200" source="$axis2:HTTP_SC">
+                <then>
+                    <property expression="$trp:Authorization" name="Authorization" scope="default" type="STRING"/>
+                    <property name="messageType" scope="axis2" type="STRING" value="application/json"/>
+                    <payloadFactory media-type="json">
+                        <format>
+				            $1
+				        </format>
+                        <args>
+                            <arg evaluator="xml" expression="get-property('ORIGINAL_PAYLOAD')"/>
+                        </args>
+                    </payloadFactory>
+                    <send>
+                        <endpoint>
+                            <http method="post" uri-template="https://orders-ppst6.ondigitalocean.app/sales/orders/{orderId}/delivery">
+                                <suspendOnFailure>
+                                    <initialDuration>-1</initialDuration>
+                                    <progressionFactor>1</progressionFactor>
+                                </suspendOnFailure>
+                                <markForSuspension>
+                                    <retriesBeforeSuspension>0</retriesBeforeSuspension>
+                                </markForSuspension>
+                            </http>
+                        </endpoint>
+                    </send>
+                </then>
+                <else>
+                    <respond/>
+                </else>
+            </filter>
+        </inSequence>
+        <outSequence>
+            <send/>
+        </outSequence>
+        <faultSequence/>
+    </resource>
+    <resource methods="PUT" uri-template="/sales/orders/{orderId}/payment">
+        <inSequence>
+            <property expression="json-eval($)" name="ORIGINAL_PAYLOAD" scope="default" type="STRING"/>
+            <property expression="$trp:Authorization" name="Authorization" scope="default" type="STRING"/>
+            <call>
+                <endpoint>
+                    <http method="post" uri-template="https://auth-3mkkb.ondigitalocean.app/buyer">
+                        <suspendOnFailure>
+                            <initialDuration>-1</initialDuration>
+                            <progressionFactor>1</progressionFactor>
+                        </suspendOnFailure>
+                        <markForSuspension>
+                            <retriesBeforeSuspension>0</retriesBeforeSuspension>
+                        </markForSuspension>
+                    </http>
+                </endpoint>
+            </call>
+            <property expression="get-property('uri.var.orderId')" name="orderId" scope="default" type="STRING"/>
+            <filter regex="200" source="$axis2:HTTP_SC">
+                <then>
+                    <property expression="$trp:Authorization" name="Authorization" scope="default" type="STRING"/>
+                    <property name="messageType" scope="axis2" type="STRING" value="application/json"/>
+                    <payloadFactory media-type="json">
+                        <format>
+				            $1
+				        </format>
+                        <args>
+                            <arg evaluator="xml" expression="get-property('ORIGINAL_PAYLOAD')"/>
+                        </args>
+                    </payloadFactory>
+                    <send>
+                        <endpoint>
+                            <http method="put" uri-template="https://orders-ppst6.ondigitalocean.app/sales/orders/{orderId}/payment">
+                                <suspendOnFailure>
+                                    <initialDuration>-1</initialDuration>
+                                    <progressionFactor>1</progressionFactor>
+                                </suspendOnFailure>
+                                <markForSuspension>
+                                    <retriesBeforeSuspension>0</retriesBeforeSuspension>
+                                </markForSuspension>
+                            </http>
+                        </endpoint>
+                    </send>
+                </then>
+                <else>
+                    <respond/>
+                </else>
+            </filter>
+        </inSequence>
+        <outSequence>
+            <send/>
+        </outSequence>
+        <faultSequence/>
+    </resource>
+    <resource methods="POST" uri-template="/sales/orders/{orderId}/payment">
+        <inSequence>
+            <property expression="$trp:Authorization" name="Authorization" scope="default" type="STRING"/>
+            <call>
+                <endpoint>
+                    <http method="post" uri-template="https://auth-3mkkb.ondigitalocean.app/buyer">
+                        <suspendOnFailure>
+                            <initialDuration>-1</initialDuration>
+                            <progressionFactor>1</progressionFactor>
+                        </suspendOnFailure>
+                        <markForSuspension>
+                            <retriesBeforeSuspension>0</retriesBeforeSuspension>
+                        </markForSuspension>
+                    </http>
+                </endpoint>
+            </call>
+            <property expression="get-property('uri.var.orderId')" name="orderId" scope="default" type="STRING"/>
+            <filter regex="200" source="$axis2:HTTP_SC">
+                <then>
+                    <property expression="$trp:Authorization" name="Authorization" scope="default" type="STRING"/>
+                    <send>
+                        <endpoint>
+                            <http method="post" uri-template="https://orders-ppst6.ondigitalocean.app/sales/orders/{orderId}/payment">
+                                <suspendOnFailure>
+                                    <initialDuration>-1</initialDuration>
+                                    <progressionFactor>1</progressionFactor>
+                                </suspendOnFailure>
+                                <markForSuspension>
+                                    <retriesBeforeSuspension>0</retriesBeforeSuspension>
+                                </markForSuspension>
+                            </http>
+                        </endpoint>
+                    </send>
+                </then>
+                <else>
+                    <respond/>
+                </else>
+            </filter>
+        </inSequence>
+        <outSequence>
+            <send/>
+        </outSequence>
+        <faultSequence/>
+    </resource>
+    <resource methods="PUT" uri-template="/sales/orders/{orderId}/items/{itemId}/amount={amount}">
+        <inSequence>
+            <property expression="$trp:Authorization" name="Authorization" scope="default" type="STRING"/>
+            <call>
+                <endpoint>
+                    <http method="post" uri-template="https://auth-3mkkb.ondigitalocean.app/buyer">
+                        <suspendOnFailure>
+                            <initialDuration>-1</initialDuration>
+                            <progressionFactor>1</progressionFactor>
+                        </suspendOnFailure>
+                        <markForSuspension>
+                            <retriesBeforeSuspension>0</retriesBeforeSuspension>
+                        </markForSuspension>
+                    </http>
+                </endpoint>
+            </call>
+            <property expression="get-property('uri.var.orderId')" name="orderId" scope="default" type="STRING"/>
+            <property expression="get-property('uri.var.itemId')" name="itemId" scope="default" type="STRING"/>
+            <property expression="get-property('uri.var.amount')" name="amount" scope="default" type="STRING"/>
+            <filter regex="200" source="$axis2:HTTP_SC">
+                <then>
+                    <property expression="$trp:Authorization" name="Authorization" scope="default" type="STRING"/>
+                    <send>
+                        <endpoint>
+                            <http method="put" uri-template="https://orders-ppst6.ondigitalocean.app/sales/orders/{uri.var.orderId}/items/{uri.var.itemId}/amount={uri.var.amount}">
+                                <suspendOnFailure>
+                                    <initialDuration>-1</initialDuration>
+                                    <progressionFactor>1</progressionFactor>
+                                </suspendOnFailure>
+                                <markForSuspension>
+                                    <retriesBeforeSuspension>0</retriesBeforeSuspension>
+                                </markForSuspension>
+                            </http>
+                        </endpoint>
+                    </send>
+                </then>
+                <else>
+                    <respond/>
+                </else>
+            </filter>
+        </inSequence>
+        <outSequence>
+            <send/>
+        </outSequence>
+        <faultSequence/>
+    </resource>
+    <resource methods="DELETE" uri-template="/sales/orders/{orderId}/items/{itemId}">
+        <inSequence>
+            <property expression="$trp:Authorization" name="Authorization" scope="default" type="STRING"/>
+            <call>
+                <endpoint>
+                    <http method="post" uri-template="https://auth-3mkkb.ondigitalocean.app/buyer">
+                        <suspendOnFailure>
+                            <initialDuration>-1</initialDuration>
+                            <progressionFactor>1</progressionFactor>
+                        </suspendOnFailure>
+                        <markForSuspension>
+                            <retriesBeforeSuspension>0</retriesBeforeSuspension>
+                        </markForSuspension>
+                    </http>
+                </endpoint>
+            </call>
+            <property expression="get-property('uri.var.orderId')" name="orderId" scope="default" type="STRING"/>
+            <property expression="get-property('uri.var.itemId')" name="itemId" scope="default" type="STRING"/>
+            <filter regex="200" source="$axis2:HTTP_SC">
+                <then>
+                    <property expression="$trp:Authorization" name="Authorization" scope="default" type="STRING"/>
+                    <send>
+                        <endpoint>
+                            <http method="delete" uri-template="https://orders-ppst6.ondigitalocean.app/sales/orders/{uri.var.orderId}/items/{uri.var.itemId}">
+                                <suspendOnFailure>
+                                    <initialDuration>-1</initialDuration>
+                                    <progressionFactor>1</progressionFactor>
+                                </suspendOnFailure>
+                                <markForSuspension>
+                                    <retriesBeforeSuspension>0</retriesBeforeSuspension>
+                                </markForSuspension>
+                            </http>
+                        </endpoint>
+                    </send>
+                </then>
+                <else>
+                    <respond/>
+                </else>
+            </filter>
+        </inSequence>
+        <outSequence>
+            <send/>
+        </outSequence>
+        <faultSequence/>
+    </resource>
+</api>

@@ -1,0 +1,5 @@
+./mvnw spring-boot:build-image -DDATABASE_DIALECT=org.hibernate.dialect.PostgreSQLDialect -DDATABASE_PASSWORD= -DDATABASE_URL=jdbc:postgresql://localhost:5432/shopping -DDATABASE_USERNAME=chandeepadissanayake -DDISCOVERY_SERVER_URL=http://localhost:8761/eureka -DSERVER_PORT=8087
+
+docker tag orders:0.0.2-SNAPSHOT registry.digitalocean.com/registry-shopping-base/orders
+
+docker push registry.digitalocean.com/registry-shopping-base/orders
